@@ -1,0 +1,58 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Player {
+    id        Int      @id @default(autoincrement())
+    name      String   @unique
+    createdAt DateTime @default(now()) @map("created_at")
+
+    killsAsKiller Kill[] @relation("KillerRelation")
+    killsAsVictim Kill[] @relation("VictimRelation")
+
+    @@map("players")
+}
+
+model Weapon {
+    id   Int    @id @default(autoincrement())
+    name String @unique
+
+    kills Kill[]
+
+    @@map("weapons")
+}
+
+model Match {
+    id        BigInt    @id
+    startedAt DateTime  @map("started_at")
+    endedAt   DateTime? @map("ended_at")
+
+    kills Kill[]
+
+    @@map("matches")
+}
+
+model Kill {
+    id Int @id @default(autoincrement())
+
+    matchId  BigInt @map("match_id")
+    killerId Int    @map("killer_id")
+    victimId Int    @map("victim_id")
+    weaponId Int    @map("weapon_id")
+
+    killedAt DateTime @map("killed_at")
+
+    match  Match  @relation(fields: [matchId], references: [id])
+    weapon Weapon @relation(fields: [weaponId], references: [id])
+
+    killer Player @relation("KillerRelation", fields: [killerId], references: [id])
+    victim Player @relation("VictimRelation", fields: [victimId], references: [id])
+
+    @@unique([matchId, victimId, killedAt])
+    @@map("kills")
+}
