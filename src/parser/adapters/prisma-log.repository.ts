@@ -44,6 +44,23 @@ export class PrismaLogRepository implements ILogRepository {
     });
   }
 
+  async killExists(params: {
+    matchId: bigint;
+    victimId: number;
+    killedAt: Date;
+  }): Promise<boolean> {
+    const result = await this.prisma.kill.findUnique({
+      where: {
+        matchId_victimId_killedAt: {
+          matchId: params.matchId,
+          victimId: params.victimId,
+          killedAt: params.killedAt,
+        },
+      },
+    });
+    return result !== null;
+  }
+
   async createKill(payload: CreateKillPayload): Promise<void> {
     await this.prisma.kill.create({
       data: {

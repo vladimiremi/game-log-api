@@ -18,5 +18,10 @@ export interface ILogRepository {
   upsertPlayer(name: string): Promise<{ id: number }>;
   upsertWeapon(name: string): Promise<{ id: number }>;
   createOrUpdateMatch(payload: CreateOrUpdateMatchPayload): Promise<void>;
+  killExists(params: {
+    matchId: bigint;
+    victimId: number;
+    killedAt: Date;
+  }): Promise<boolean>;
   createKill(payload: CreateKillPayload): Promise<void>;
 }

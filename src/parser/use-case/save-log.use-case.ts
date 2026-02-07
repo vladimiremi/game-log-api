@@ -50,6 +50,13 @@ export class SaveLogUseCase {
           this.logRepository.upsertWeapon(event.weapon),
         ]);
 
+        const exists: boolean = await this.logRepository.killExists({
+          matchId: currentMatchId,
+          victimId: victim.id,
+          killedAt: event.timestamp,
+        });
+        if (exists) continue;
+
         await this.logRepository.createKill({
           matchId: currentMatchId,
           killerId: killer.id,

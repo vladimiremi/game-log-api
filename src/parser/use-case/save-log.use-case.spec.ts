@@ -19,7 +19,9 @@ describe('SaveLogUseCase', () => {
       upsertPlayer: jest.fn(),
       upsertWeapon: jest.fn(),
       createOrUpdateMatch: jest.fn(),
+      killExists: jest.fn().mockResolvedValue(false),
       createKill: jest.fn(),
+      clear: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -190,6 +192,61 @@ describe('SaveLogUseCase', () => {
     expect(logRepository.upsertPlayer.mock.calls).toHaveLength(0);
     expect(logRepository.upsertWeapon.mock.calls).toHaveLength(0);
     expect(logRepository.createKill.mock.calls).toHaveLength(0);
+  });
+
+  it('should not create duplicate kill when same match, victim and killedAt already exists', async () => {
+    const startedAt = new Date(2019, 3, 23, 15, 34, 22);
+    const killAt = new Date(2019, 3, 23, 15, 36, 4);
+    const endedAt = new Date(2019, 3, 23, 15, 39, 22);
+    const killEvent = {
+      type: 'kill' as const,
+      timestamp: killAt,
+      killer: 'Roman',
+      victim: 'Nick',
+      weapon: 'M16',
+    };
+    logParser.parseLog.mockReturnValue([
+      { type: 'match_started', matchId: 11348965, timestamp: startedAt },
+      killEvent,
+      killEvent,
+      { type: 'match_ended', matchId: 11348965, timestamp: endedAt },
+    ]);
+    logRepository.upsertPlayer.mockImplementation((name) =>
+      Promise.resolve({ id: name === 'Roman' ? 1 : 2 }),
+    );
+    logRepository.upsertWeapon.mockResolvedValue({ id: 10 });
+    logRepository.killExists
+      .mockResolvedValueOnce(false)
+      .mockResolvedValueOnce(true);
+
+    await useCase.execute('any');
+
+    expect(logRepository.killExists).toHaveBeenCalledTimes(2);
+    const expectedExistsParams = {
+      matchId: BigInt(11348965),
+      victimId: 2,
+      killedAt: killAt,
+    };
+
+    expect(logRepository.killExists).toHaveBeenNthCalledWith(
+      1,
+      expectedExistsParams,
+    );
+
+    expect(logRepository.killExists).toHaveBeenNthCalledWith(
+      2,
+      expectedExistsParams,
+    );
+
+    expect(logRepository.createKill).toHaveBeenCalledTimes(1);
+
+    expect(logRepository.createKill).toHaveBeenCalledWith({
+      matchId: BigInt(11348965),
+      killerId: 1,
+      victimId: 2,
+      weaponId: 10,
+      killedAt: killAt,
+    });
   });
 
   it('should ignore kill events when no match has started', async () => {
