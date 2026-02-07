@@ -24,4 +24,5 @@ export interface ILogRepository {
     killedAt: Date;
   }): Promise<boolean>;
   createKill(payload: CreateKillPayload): Promise<void>;
+  clear(): Promise<void>;
 }
