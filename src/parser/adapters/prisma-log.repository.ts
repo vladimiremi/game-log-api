@@ -1,0 +1,58 @@
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+import type {
+  CreateKillPayload,
+  CreateOrUpdateMatchPayload,
+  ILogRepository,
+} from '../ports/log-repository.port';
+
+@Injectable()
+export class PrismaLogRepository implements ILogRepository {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async upsertPlayer(name: string): Promise<{ id: number }> {
+    const player = await this.prisma.player.upsert({
+      where: { name },
+      create: { name },
+      update: {},
+    });
+    return { id: player.id };
+  }
+
+  async upsertWeapon(name: string): Promise<{ id: number }> {
+    const weapon = await this.prisma.weapon.upsert({
+      where: { name },
+      create: { name },
+      update: {},
+    });
+    return { id: weapon.id };
+  }
+
+  async createOrUpdateMatch(
+    payload: CreateOrUpdateMatchPayload,
+  ): Promise<void> {
+    await this.prisma.match.upsert({
+      where: { id: payload.id },
+      create: {
+        id: payload.id,
+        startedAt: payload.startedAt,
+        endedAt: payload.endedAt,
+      },
+      update: {
+        ...(payload.endedAt !== undefined && { endedAt: payload.endedAt }),
+      },
+    });
+  }
+
+  async createKill(payload: CreateKillPayload): Promise<void> {
+    await this.prisma.kill.create({
+      data: {
+        matchId: payload.matchId,
+        killerId: payload.killerId,
+        victimId: payload.victimId,
+        weaponId: payload.weaponId,
+        killedAt: payload.killedAt,
+      },
+    });
+  }
+}

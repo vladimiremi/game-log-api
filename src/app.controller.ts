@@ -9,11 +9,13 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { extname } from 'path';
+import { SaveLogUseCase } from './parser/use-case/save-log.use-case';
 
 @ApiTags('logs')
 @Controller('api/logs')
 export class AppController {
-  constructor() {}
+  constructor(private readonly saveLogUseCase: SaveLogUseCase) {}
 
   @Post('/upload')
   @HttpCode(HttpStatus.CREATED)
@@ -22,12 +24,24 @@ export class AppController {
   @ApiBody({
     schema: {
       type: 'object',
-      properties: { file: { type: 'string', format: 'binary' } },
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Log file (.log or .txt only)',
+        },
+      },
     },
   })
-  upload(@UploadedFile() file: Express.Multer.File) {
+  async upload(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException('No file uploaded');
+    }
+
+    const allowedExtensions = ['.log', '.txt'];
+    const ext = extname(file.originalname).toLowerCase();
+    if (!allowedExtensions.includes(ext)) {
+      throw new BadRequestException('Only .log and .txt files are allowed');
     }
 
     const content = file.buffer?.toString('utf-8') ?? '';
@@ -35,6 +49,7 @@ export class AppController {
       throw new BadRequestException('File is empty');
     }
 
-    return content;
+    await this.saveLogUseCase.execute(content);
+    return { message: 'Log processed successfully' };
   }
 }

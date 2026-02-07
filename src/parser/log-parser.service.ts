@@ -6,11 +6,12 @@ import type {
   ParsedMatchStarted,
 } from './log-parser.interface';
 import { parseTimestamp } from './helpers/parse-timestamp.helper';
+import type { ILogParser } from './ports/log-parser.port';
 
 const LINE_REGEX = /^(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2}) - (.+)$/;
 
 @Injectable()
-export class LogParserService {
+export class LogParserService implements ILogParser {
   parseLine(line: string): ParsedLogEvent | null {
     const trimmed = line.trim();
     if (!trimmed) return null;
