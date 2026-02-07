@@ -4,8 +4,8 @@ import request from 'supertest';
 import { join } from 'path';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/persistense/prisma/prisma.service';
-import { LOG_REPOSITORY } from '../src/modules/parser/interfaces/log-repository.port';
-import type { ILogRepository } from '../src/modules/parser/interfaces/log-repository.port';
+import { LOG_REPOSITORY } from '../src/modules/parser/repository/log-repository.interface';
+import type { ILogRepository } from '../src/modules/parser/repository/log-repository.interface';
 
 describe('LogsController (e2e)', () => {
   let module: TestingModule;

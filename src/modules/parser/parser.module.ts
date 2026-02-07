@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { PrismaLogRepository } from '../../persistense/prisma/prisma-log.repository';
 import { LogParserService } from './services/log-parser.service';
 import { LOG_PARSER } from './interfaces/log-parser.port';
-import { LOG_REPOSITORY } from './interfaces/log-repository.port';
+import { LOG_REPOSITORY } from './repository/log-repository.interface';
 import { SaveLogUseCase } from './use-case/save-log.use-case';
 
 @Module({

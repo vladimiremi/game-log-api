@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { LOG_PARSER } from '../interfaces/log-parser.port';
 import type { ILogParser } from '../interfaces/log-parser.port';
-import { LOG_REPOSITORY } from '../interfaces/log-repository.port';
-import type { ILogRepository } from '../interfaces/log-repository.port';
+import { LOG_REPOSITORY } from '../repository/log-repository.interface';
+import type { ILogRepository } from '../repository/log-repository.interface';
 
 @Injectable()
 export class SaveLogUseCase {

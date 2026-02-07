@@ -14,6 +14,11 @@ export interface CreateKillPayload {
   killedAt: Date;
 }
 
+export interface KillByMatchItem {
+  killerId: number;
+  killerName: string;
+}
+
 export interface ILogRepository {
   upsertPlayer(name: string): Promise<{ id: number }>;
   upsertWeapon(name: string): Promise<{ id: number }>;
@@ -24,5 +29,6 @@ export interface ILogRepository {
     killedAt: Date;
   }): Promise<boolean>;
   createKill(payload: CreateKillPayload): Promise<void>;
+  getKillsByMatchId(matchId: bigint): Promise<KillByMatchItem[]>;
   clear(): Promise<void>;
 }

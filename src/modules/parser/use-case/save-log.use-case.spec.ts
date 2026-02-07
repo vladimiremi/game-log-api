@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import type { ParsedLogEvent } from '../interfaces/log-parser.interface';
 import { LOG_PARSER } from '../interfaces/log-parser.port';
 import type { ILogParser } from '../interfaces/log-parser.port';
-import { LOG_REPOSITORY } from '../interfaces/log-repository.port';
-import type { ILogRepository } from '../interfaces/log-repository.port';
+import { LOG_REPOSITORY } from '../repository/log-repository.interface';
+import type { ILogRepository } from '../repository/log-repository.interface';
 import { SaveLogUseCase } from './save-log.use-case';
 
 describe('SaveLogUseCase', () => {
@@ -21,6 +21,7 @@ describe('SaveLogUseCase', () => {
       createOrUpdateMatch: jest.fn(),
       killExists: jest.fn().mockResolvedValue(false),
       createKill: jest.fn(),
+      getKillsByMatchId: jest.fn(),
       clear: jest.fn(),
     };
 

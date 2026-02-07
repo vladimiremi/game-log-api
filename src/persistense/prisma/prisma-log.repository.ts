@@ -4,7 +4,8 @@ import type {
   CreateKillPayload,
   CreateOrUpdateMatchPayload,
   ILogRepository,
-} from '../../modules/parser/interfaces/log-repository.port';
+  KillByMatchItem,
+} from '../../modules/parser/repository/log-repository.interface';
 
 @Injectable()
 export class PrismaLogRepository implements ILogRepository {
@@ -71,6 +72,17 @@ export class PrismaLogRepository implements ILogRepository {
         killedAt: payload.killedAt,
       },
     });
+  }
+
+  async getKillsByMatchId(matchId: bigint): Promise<KillByMatchItem[]> {
+    const kills = await this.prisma.kill.findMany({
+      where: { matchId },
+      include: { killer: true },
+    });
+    return kills.map((k) => ({
+      killerId: k.killerId,
+      killerName: k.killer.name,
+    }));
   }
 
   async clear(): Promise<void> {
