@@ -3,7 +3,7 @@ import type {
   ParsedKill,
   ParsedMatchEnded,
   ParsedMatchStarted,
-} from './log-parser.interface';
+} from '../interfaces/log-parser.interface';
 import { LogParserService } from './log-parser.service';
 
 describe('LogParserService', () => {

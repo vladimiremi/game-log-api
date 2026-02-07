@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from './prisma.service';
 import type {
   CreateKillPayload,
   CreateOrUpdateMatchPayload,
   ILogRepository,
-} from '../ports/log-repository.port';
+} from '../../modules/parser/interfaces/log-repository.port';
 
 @Injectable()
 export class PrismaLogRepository implements ILogRepository {

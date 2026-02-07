@@ -10,11 +10,11 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { extname } from 'path';
-import { SaveLogUseCase } from './parser/use-case/save-log.use-case';
+import { SaveLogUseCase } from '../modules/parser/use-case/save-log.use-case';
 
 @ApiTags('logs')
 @Controller('api/logs')
-export class AppController {
+export class ParserController {
   constructor(private readonly saveLogUseCase: SaveLogUseCase) {}
 
   @Post('/upload')

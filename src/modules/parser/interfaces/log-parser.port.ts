@@ -1,4 +1,4 @@
-import type { ParsedLogEvent } from '../log-parser.interface';
+import type { ParsedLogEvent } from './log-parser.interface';
 
 export const LOG_PARSER = Symbol('LOG_PARSER');
 

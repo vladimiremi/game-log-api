@@ -4,9 +4,9 @@ import type {
   ParsedLogEvent,
   ParsedMatchEnded,
   ParsedMatchStarted,
-} from './log-parser.interface';
-import { parseTimestamp } from './helpers/parse-timestamp.helper';
-import type { ILogParser } from './ports/log-parser.port';
+} from '../interfaces/log-parser.interface';
+import { parseTimestamp } from '../../../helpers/parse-timestamp.helper';
+import type { ILogParser } from '../interfaces/log-parser.port';
 
 const LINE_REGEX = /^(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2}) - (.+)$/;
 

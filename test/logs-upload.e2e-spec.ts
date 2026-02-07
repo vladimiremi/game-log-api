@@ -3,9 +3,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { join } from 'path';
 import { AppModule } from '../src/app.module';
-import { PrismaService } from '../src/prisma/prisma.service';
-import { LOG_REPOSITORY } from '../src/parser/ports/log-repository.port';
-import type { ILogRepository } from '../src/parser/ports/log-repository.port';
+import { PrismaService } from '../src/persistense/prisma/prisma.service';
+import { LOG_REPOSITORY } from '../src/modules/parser/interfaces/log-repository.port';
+import type { ILogRepository } from '../src/modules/parser/interfaces/log-repository.port';
 
 describe('LogsController (e2e)', () => {
   let module: TestingModule;
