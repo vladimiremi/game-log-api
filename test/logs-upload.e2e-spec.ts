@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { join } from 'path';
 import { AppModule } from '../src/app.module';
+import { PrismaService } from '../src/prisma/prisma.service';
 import { LOG_REPOSITORY } from '../src/parser/ports/log-repository.port';
 import type { ILogRepository } from '../src/parser/ports/log-repository.port';
 
@@ -10,6 +11,7 @@ describe('LogsController (e2e)', () => {
   let module: TestingModule;
   let app: INestApplication;
   let logRepository: ILogRepository;
+  let prisma: PrismaService;
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -20,6 +22,7 @@ describe('LogsController (e2e)', () => {
     await app.init();
 
     logRepository = module.get<ILogRepository>(LOG_REPOSITORY);
+    prisma = module.get<PrismaService>(PrismaService);
   });
 
   afterEach(async () => {
@@ -40,6 +43,39 @@ describe('LogsController (e2e)', () => {
         .expect(HttpStatus.CREATED);
 
       expect(response.body).toEqual({ message: 'Log processed successfully' });
+    });
+
+    it('persists parsed log data to the database', async () => {
+      const samplePath = join(__dirname, 'fixtures', 'sample.log');
+
+      await request(app.getHttpServer())
+        .post('/api/logs/upload')
+        .attach('file', samplePath)
+        .expect(HttpStatus.CREATED);
+
+      const matches = await prisma.match.findMany();
+      expect(matches).toHaveLength(1);
+      expect(matches[0].id).toBe(1n);
+      expect(matches[0].startedAt).toBeInstanceOf(Date);
+      expect(matches[0].endedAt).toBeInstanceOf(Date);
+
+      const players = await prisma.player.findMany();
+      expect(players).toHaveLength(2);
+      const playerNames = players.map((p) => p.name).sort();
+      expect(playerNames).toEqual(['Player1', 'Player2']);
+
+      const weapons = await prisma.weapon.findMany();
+      expect(weapons).toHaveLength(1);
+      expect(weapons[0].name).toBe('MOD_WEAPON');
+
+      const kills = await prisma.kill.findMany({
+        include: { killer: true, victim: true, weapon: true },
+      });
+      expect(kills).toHaveLength(1);
+      expect(kills[0].matchId).toBe(1n);
+      expect(kills[0].killer.name).toBe('Player1');
+      expect(kills[0].victim.name).toBe('Player2');
+      expect(kills[0].weapon.name).toBe('MOD_WEAPON');
     });
 
     it('returns 400 when no file is uploaded', async () => {
