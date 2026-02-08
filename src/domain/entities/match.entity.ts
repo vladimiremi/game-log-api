@@ -1,5 +1,6 @@
 import { DomainError } from '../errors/domain.error';
 import { RankingEntry } from '../types/ranking-entry.interface';
+import { PlayerName } from '../value-objects/player-name.vo';
 import { Kill } from './kill.entity';
 
 export class Match {
@@ -48,15 +49,32 @@ export class Match {
 
   getRanking(): RankingEntry[] {
     const fragsByPlayer = new Map<string, number>();
+    const deathsByPlayer = new Map<string, number>();
+    const allPlayerNames = new Set<string>();
+
     for (const kill of this._kills) {
-      if (kill.isWorldKill()) continue;
-      const name = kill.killerName;
-      fragsByPlayer.set(name, (fragsByPlayer.get(name) ?? 0) + 1);
+      if (!PlayerName.isWorld(kill.killerName)) {
+        fragsByPlayer.set(
+          kill.killerName,
+          (fragsByPlayer.get(kill.killerName) ?? 0) + 1,
+        );
+        allPlayerNames.add(kill.killerName);
+      }
+      deathsByPlayer.set(
+        kill.victimName,
+        (deathsByPlayer.get(kill.victimName) ?? 0) + 1,
+      );
+      allPlayerNames.add(kill.victimName);
     }
 
-    return Array.from(fragsByPlayer.entries())
-      .map(([playerName, frags]) => ({ playerName, frags }))
-      .sort((a, b) => b.frags - a.frags);
+    return Array.from(allPlayerNames)
+      .filter((name) => !PlayerName.isWorld(name))
+      .map((playerName) => ({
+        playerName,
+        frags: fragsByPlayer.get(playerName) ?? 0,
+        deaths: deathsByPlayer.get(playerName) ?? 0,
+      }))
+      .sort((a, b) => b.frags - a.frags || a.deaths - b.deaths);
   }
 
   static withKills(matchId: bigint, kills: Kill[]): Match {
