@@ -45,8 +45,9 @@ describe('GetMatchRankingUseCase', () => {
     const result = await useCase.execute(1n);
 
     expect(result).toEqual([
-      { playerName: 'PlayerA', frags: 2 },
-      { playerName: 'PlayerB', frags: 1 },
+      { playerName: 'PlayerA', frags: 2, deaths: 0 },
+      { playerName: 'PlayerB', frags: 1, deaths: 0 },
+      { playerName: 'Victim', frags: 0, deaths: 3 },
     ]);
   });
 
@@ -72,8 +73,9 @@ describe('GetMatchRankingUseCase', () => {
     const result = await useCase.execute(1n);
 
     expect(result).toEqual([
-      { playerName: 'Roman', frags: 1 },
-      { playerName: 'Marcus', frags: 1 },
+      { playerName: 'Roman', frags: 1, deaths: 0 },
+      { playerName: 'Marcus', frags: 1, deaths: 0 },
+      { playerName: 'Victim', frags: 0, deaths: 3 },
     ]);
     expect(result.some((e) => e.playerName === '<WORLD>')).toBe(false);
   });
@@ -86,7 +88,7 @@ describe('GetMatchRankingUseCase', () => {
     expect(result).toEqual([]);
   });
 
-  it('should return empty ranking when match has only WORLD kills', async () => {
+  it('should include players who only died in the ranking with zero frags', async () => {
     killRepository.findByMatchId.mockResolvedValue([
       new Kill({ ...baseParams, killerName: '<WORLD>' }),
       new Kill({ ...baseParams, killerName: '<WORLD>' }),
@@ -94,7 +96,7 @@ describe('GetMatchRankingUseCase', () => {
 
     const result = await useCase.execute(1n);
 
-    expect(result).toEqual([]);
+    expect(result).toEqual([{ playerName: 'Victim', frags: 0, deaths: 1 }]);
   });
 
   it('should return empty ranking for non-existent match', async () => {

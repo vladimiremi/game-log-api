@@ -33,7 +33,11 @@ describe('Match', () => {
       }),
     );
 
-    expect(match.getRanking()).toEqual([{ playerName: 'Roman', frags: 2 }]);
+    expect(match.getRanking()).toEqual([
+      { playerName: 'Roman', frags: 2, deaths: 0 },
+      { playerName: 'Marcus', frags: 0, deaths: 1 },
+      { playerName: 'Nick', frags: 0, deaths: 2 },
+    ]);
   });
 
   it('does not add duplicate kills', () => {

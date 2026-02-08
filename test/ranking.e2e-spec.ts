@@ -46,8 +46,9 @@ describe('RankingController (e2e)', () => {
         .expect(HttpStatus.OK);
 
       expect(response.body.ranking).toEqual([
-        { playerName: 'Roman', frags: 2 },
-        { playerName: 'Marcus', frags: 1 },
+        { playerName: 'Roman', frags: 2, deaths: 0 },
+        { playerName: 'Marcus', frags: 1, deaths: 1 },
+        { playerName: 'Nick', frags: 0, deaths: 3 },
       ]);
       expect(
         response.body.ranking.some(
