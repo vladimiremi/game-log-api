@@ -40,6 +40,30 @@ describe('Match', () => {
     ]);
   });
 
+  it('returns at most 20 players in ranking and excludes the 21st', () => {
+    const match = new Match(1n, new Date('2024-01-01T10:00:00.000Z'));
+    const baseTime = new Date('2024-01-01T10:00:00.000Z').getTime();
+
+    for (let i = 2; i <= 21; i++) {
+      match.addKill(
+        new Kill({
+          matchId: 1n,
+          killerName: 'Player1',
+          victimName: `Player${i}`,
+          weaponName: 'M16',
+          killedAt: new Date(baseTime + i),
+        }),
+      );
+    }
+
+    const ranking = match.getRanking();
+
+    expect(ranking).toHaveLength(20);
+    expect(ranking.some((e) => e.playerName === 'Player21')).toBe(false);
+    expect(ranking.some((e) => e.playerName === 'Player1')).toBe(true);
+    expect(ranking.some((e) => e.playerName === 'Player20')).toBe(true);
+  });
+
   it('does not add duplicate kills', () => {
     const match = new Match(1n, new Date('2024-01-01T10:00:00.000Z'));
     const kill = new Kill({
