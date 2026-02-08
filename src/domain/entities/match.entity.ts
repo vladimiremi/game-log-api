@@ -4,6 +4,8 @@ import { PlayerName } from '../value-objects/player-name.vo';
 import { Kill } from './kill.entity';
 
 export class Match {
+  static readonly MAX_PLAYERS_IN_RANKING = 20;
+
   private readonly _id: bigint;
   private readonly _startedAt: Date;
   private _endedAt: Date | null = null;
@@ -74,7 +76,8 @@ export class Match {
         frags: fragsByPlayer.get(playerName) ?? 0,
         deaths: deathsByPlayer.get(playerName) ?? 0,
       }))
-      .sort((a, b) => b.frags - a.frags || a.deaths - b.deaths);
+      .sort((a, b) => b.frags - a.frags || a.deaths - b.deaths)
+      .slice(0, Match.MAX_PLAYERS_IN_RANKING);
   }
 
   static withKills(matchId: bigint, kills: Kill[]): Match {
