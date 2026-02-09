@@ -1,98 +1,105 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Game Log API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Este projeto é uma API backend para **processar logs de partidas**, persistir os dados em **PostgreSQL** e expor **ranking por partida**. Foi desenvolvido com **NestJS** e **TypeScript**, usando **Prisma** como camada de acesso a dados.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
 
-## Description
+- **Upload de logs**: endpoint multipart para envio de arquivos `.log` ou `.txt`
+- **Parser de eventos**: identifica início/fim de partida e kills
+- **Persistência**: salva jogadores, armas, partidas e kills no banco
+- **Ranking por partida**: ranking ordenado por frags, exclui `<WORLD>`
+- **Documentação Interativa**: Swagger/OpenAPI
+- **Testes**: unitários e e2e com Jest e Supertest
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Arquitetura & Boas Práticas
 
-## Project setup
+- **Camadas definidas**: `domain`, `modules` (casos de uso) e `infrastructure`
+- **Domínio explícito**: entidades e value objects para regras de negócio
+- **Persistência isolada**: repositórios com implementação via Prisma
+- **Testabilidade**: testes unitários para domínio e e2e para endpoints
 
-```bash
-$ yarn install
+## Tech Stack
+
+- **Core Framework**: NestJS, TypeScript
+- **Persistência**: Prisma, PostgreSQL
+- **Documentação**: @nestjs/swagger
+- **Testing**: Jest, Supertest
+- **Linting & Formatting**: ESLint, Prettier
+
+## Architecture Overview
+
+O projeto segue uma organização em camadas:
+
+- **Domain**: regras de negócio, entidades e value objects
+- **Modules**: casos de uso e controllers HTTP
+- **Infrastructure**: implementação de repositórios e acesso ao banco
+
+Essa separação mantém o domínio independente e facilita manutenção e testes.
+
+## Project Structure
+
+```plaintext
+src/
+├── app.module.ts
+├── main.ts
+├── domain/
+│   ├── entities/           # kill, match, player, weapon
+│   ├── errors/
+│   ├── repositories/       # interfaces dos repositórios
+│   ├── types/
+│   └── value-objects/
+├── infrastructure/
+│   └── persistence/prisma/ # mappers, repositories, schema
+├── modules/
+│   ├── parser/             # controller, interfaces, pipes, services, use-case
+│   └── ranking/            # controller, use-case
+└── shared/
+    └── helpers/
 ```
 
-## Compile and run the project
+## API Usage
+
+### Base URLs
+
+- API: `http://localhost:3000`
+- Swagger UI: `http://localhost:3000/api/docs`
+
+## Testing
+
+### Running Tests
 
 ```bash
-# development
-$ yarn run start
+# Unit tests
+npm test
 
-# watch mode
-$ yarn run start:dev
+# E2E
+npm run test:e2e
 
-# production mode
-$ yarn run start:prod
+# Coverage
+npm run test:cov
 ```
 
-## Run tests
+## Configuration
+
+### Setup
 
 ```bash
-# unit tests
-$ yarn run test
+# Instalar dependências
+yarn install
 
-# e2e tests
-$ yarn run test:e2e
+# Subir banco
+docker compose up -d
 
-# test coverage
-$ yarn run test:cov
+# Criar .env
+cp .env.example .env
+
+# Rodar migrations
+npx prisma migrate dev
+
+# Iniciar server em dev
+yarn start:dev
 ```
 
-## Deployment
+## Diagrama de entidade relacioinamento
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ yarn install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+<img width="1890" height="940" alt="image" src="https://github.com/user-attachments/assets/802343d5-1f97-494c-9af6-78e8bd8ff4a3" />
