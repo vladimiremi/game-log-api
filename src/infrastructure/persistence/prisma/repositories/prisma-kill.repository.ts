@@ -44,14 +44,4 @@ export class PrismaKillRepository implements IKillRepository {
     });
     return kills.map((k) => KillMapper.toDomain(k));
   }
-
-  async clear(): Promise<void> {
-    if (process.env.NODE_ENV !== 'test') {
-      throw new Error('This method can only be used in test environment');
-    }
-    await this.prisma.kill.deleteMany();
-    await this.prisma.match.deleteMany();
-    await this.prisma.player.deleteMany();
-    await this.prisma.weapon.deleteMany();
-  }
 }

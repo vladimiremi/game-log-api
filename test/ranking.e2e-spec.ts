@@ -3,29 +3,27 @@ import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { join } from 'path';
 import { AppModule } from '../src/app.module';
-import {
-  KILL_REPOSITORY,
-  type IKillRepository,
-} from '../src/domain/repositories/kill-repository.interface';
+import { Orchestrator } from './orchestrator';
 
 describe('RankingController (e2e)', () => {
   let module: TestingModule;
   let app: INestApplication;
-  let killRepository: IKillRepository;
+  let orchestrator: Orchestrator;
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [AppModule],
+      providers: [Orchestrator],
     }).compile();
 
     app = module.createNestApplication();
     await app.init();
 
-    killRepository = module.get<IKillRepository>(KILL_REPOSITORY);
+    orchestrator = module.get(Orchestrator);
   });
 
   afterEach(async () => {
-    await killRepository.clear();
+    await orchestrator.clearDatabase();
   });
 
   afterAll(async () => {

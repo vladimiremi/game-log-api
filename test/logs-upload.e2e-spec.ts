@@ -4,31 +4,29 @@ import request from 'supertest';
 import { join } from 'path';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/infrastructure/persistence/prisma/prisma.service';
-import {
-  KILL_REPOSITORY,
-  type IKillRepository,
-} from '../src/domain/repositories/kill-repository.interface';
+import { Orchestrator } from './orchestrator';
 
 describe('LogsController (e2e)', () => {
   let module: TestingModule;
   let app: INestApplication;
-  let killRepository: IKillRepository;
   let prisma: PrismaService;
+  let orchestrator: Orchestrator;
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [AppModule],
+      providers: [Orchestrator],
     }).compile();
 
     app = module.createNestApplication();
     await app.init();
 
-    killRepository = module.get<IKillRepository>(KILL_REPOSITORY);
     prisma = module.get<PrismaService>(PrismaService);
+    orchestrator = module.get(Orchestrator);
   });
 
   afterEach(async () => {
-    await killRepository.clear();
+    await orchestrator.clearDatabase();
   });
 
   afterAll(async () => {

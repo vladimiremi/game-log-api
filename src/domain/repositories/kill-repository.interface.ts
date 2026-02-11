@@ -20,5 +20,4 @@ export interface IKillRepository {
   create(payload: CreateKillPayload): Promise<void>;
   exists(params: KillExistsParams): Promise<boolean>;
   findByMatchId(matchId: bigint): Promise<Kill[]>;
-  clear(): Promise<void>;
 }

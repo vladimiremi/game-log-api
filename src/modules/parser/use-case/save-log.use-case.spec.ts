@@ -47,7 +47,6 @@ describe('SaveLogUseCase', () => {
       create: jest.fn(),
       exists: jest.fn().mockResolvedValue(false),
       findByMatchId: jest.fn(),
-      clear: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({

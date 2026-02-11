@@ -20,8 +20,7 @@ describe('GetMatchRankingUseCase', () => {
     killRepository = {
       create: jest.fn(),
       exists: jest.fn(),
-      findByMatchId: jest.fn(),
-      clear: jest.fn(),
+      findByMatchId: jest.fn()
     };
 
     const module: TestingModule = await Test.createTestingModule({
