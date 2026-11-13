@@ -1,14 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Kill } from '../../../domain/entities/kill.entity';
+import { Match } from '../../../domain/entities/match.entity';
 import {
-  KILL_REPOSITORY,
-  type IKillRepository,
-} from '../../../domain/repositories/kill-repository.interface';
+  MATCH_REPOSITORY,
+  type IMatchRepository,
+} from '../../../domain/repositories/match-repository.interface';
 import { GetMatchRankingUseCase } from './get-match-ranking.use-case';
 
 describe('GetMatchRankingUseCase', () => {
   let useCase: GetMatchRankingUseCase;
-  let killRepository: jest.Mocked<IKillRepository>;
+  let matchRepository: jest.Mocked<IMatchRepository>;
   const baseParams = {
     matchId: 1n,
     victimName: 'Victim',
@@ -17,16 +18,15 @@ describe('GetMatchRankingUseCase', () => {
   };
 
   beforeEach(async () => {
-    killRepository = {
-      create: jest.fn(),
-      exists: jest.fn(),
-      findByMatchId: jest.fn()
+    matchRepository = {
+      save: jest.fn(),
+      findById: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GetMatchRankingUseCase,
-        { provide: KILL_REPOSITORY, useValue: killRepository },
+        { provide: MATCH_REPOSITORY, useValue: matchRepository },
       ],
     }).compile();
 
@@ -35,11 +35,14 @@ describe('GetMatchRankingUseCase', () => {
 
   it('should return ranking ordered by frags descending', async () => {
     const base = new Date('2024-01-01T10:00:00.000Z');
-    killRepository.findByMatchId.mockResolvedValue([
+    const kills = [
       new Kill({ ...baseParams, killerName: 'PlayerA', killedAt: new Date(base.getTime() + 0) }),
       new Kill({ ...baseParams, killerName: 'PlayerB', killedAt: new Date(base.getTime() + 1) }),
       new Kill({ ...baseParams, killerName: 'PlayerA', killedAt: new Date(base.getTime() + 2) }),
-    ]);
+    ];
+    matchRepository.findById.mockResolvedValue(
+      Match.reconstitute(1n, base, null, kills),
+    );
 
     const result = await useCase.execute(1n);
 
@@ -51,7 +54,7 @@ describe('GetMatchRankingUseCase', () => {
   });
 
   it('should disregard kills by WORLD', async () => {
-    killRepository.findByMatchId.mockResolvedValue([
+    const kills = [
       new Kill({
         ...baseParams,
         killerName: 'Roman',
@@ -67,7 +70,10 @@ describe('GetMatchRankingUseCase', () => {
         killerName: 'Marcus',
         killedAt: new Date('2024-01-01T10:00:02.000Z'),
       }),
-    ]);
+    ];
+    matchRepository.findById.mockResolvedValue(
+      Match.reconstitute(1n, new Date('2024-01-01T10:00:00.000Z'), null, kills),
+    );
 
     const result = await useCase.execute(1n);
 
@@ -80,7 +86,9 @@ describe('GetMatchRankingUseCase', () => {
   });
 
   it('should return empty ranking when match has no kills', async () => {
-    killRepository.findByMatchId.mockResolvedValue([]);
+    matchRepository.findById.mockResolvedValue(
+      Match.reconstitute(1n, new Date(), null, []),
+    );
 
     const result = await useCase.execute(1n);
 
@@ -88,10 +96,13 @@ describe('GetMatchRankingUseCase', () => {
   });
 
   it('should include players who only died in the ranking with zero frags', async () => {
-    killRepository.findByMatchId.mockResolvedValue([
+    const kills = [
       new Kill({ ...baseParams, killerName: '<WORLD>' }),
       new Kill({ ...baseParams, killerName: '<WORLD>' }),
-    ]);
+    ];
+    matchRepository.findById.mockResolvedValue(
+      Match.reconstitute(1n, new Date(), null, kills),
+    );
 
     const result = await useCase.execute(1n);
 
@@ -99,7 +110,7 @@ describe('GetMatchRankingUseCase', () => {
   });
 
   it('should return empty ranking for non-existent match', async () => {
-    killRepository.findByMatchId.mockResolvedValue([]);
+    matchRepository.findById.mockResolvedValue(null);
 
     const result = await useCase.execute(99999n);
 

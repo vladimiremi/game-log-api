@@ -3,7 +3,7 @@ import { Kill } from './kill.entity';
 
 describe('Match', () => {
   it('builds ranking excluding WORLD kills', () => {
-    const match = new Match(1n, new Date('2024-01-01T10:00:00.000Z'));
+    const match = Match.start(1n, new Date('2024-01-01T10:00:00.000Z'));
 
     match.addKill(
       new Kill({
@@ -41,7 +41,7 @@ describe('Match', () => {
   });
 
   it('returns at most 20 players in ranking and excludes the 21st', () => {
-    const match = new Match(1n, new Date('2024-01-01T10:00:00.000Z'));
+    const match = Match.start(1n, new Date('2024-01-01T10:00:00.000Z'));
     const baseTime = new Date('2024-01-01T10:00:00.000Z').getTime();
 
     for (let i = 2; i <= 21; i++) {
@@ -65,7 +65,7 @@ describe('Match', () => {
   });
 
   it('does not add duplicate kills', () => {
-    const match = new Match(1n, new Date('2024-01-01T10:00:00.000Z'));
+    const match = Match.start(1n, new Date('2024-01-01T10:00:00.000Z'));
     const kill = new Kill({
       matchId: 1n,
       killerName: 'Roman',

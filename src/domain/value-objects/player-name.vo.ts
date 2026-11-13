@@ -23,4 +23,12 @@ export class PlayerName {
   static isWorld(name: string): boolean {
     return name === PlayerName.WORLD;
   }
+
+  equals(other: PlayerName): boolean {
+    return this._value === other._value;
+  }
+
+  toString(): string {
+    return this._value;
+  }
 }

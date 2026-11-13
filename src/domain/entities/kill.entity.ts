@@ -1,5 +1,5 @@
 import { PlayerName } from '../value-objects/player-name.vo';
-import { DomainError } from '../errors/domain.error';
+import { WeaponName } from '../value-objects/weapon-name.vo';
 
 interface KillParams {
   matchId: bigint;
@@ -11,30 +11,16 @@ interface KillParams {
 
 export class Kill {
   private readonly _matchId: bigint;
-  private readonly _killerName: string;
-  private readonly _victimName: string;
-  private readonly _weaponName: string;
+  private readonly _killerName: PlayerName;
+  private readonly _victimName: PlayerName;
+  private readonly _weaponName: WeaponName;
   private readonly _killedAt: Date;
 
   constructor(params: KillParams) {
-    const killerName = params.killerName?.trim();
-    const victimName = params.victimName?.trim();
-    const weaponName = params.weaponName?.trim();
-
-    if (!killerName) {
-      throw new DomainError('Killer name cannot be empty');
-    }
-    if (!victimName) {
-      throw new DomainError('Victim name cannot be empty');
-    }
-    if (!weaponName) {
-      throw new DomainError('Weapon name cannot be empty');
-    }
-
     this._matchId = params.matchId;
-    this._killerName = killerName;
-    this._victimName = victimName;
-    this._weaponName = weaponName;
+    this._killerName = PlayerName.create(params.killerName);
+    this._victimName = PlayerName.create(params.victimName);
+    this._weaponName = WeaponName.create(params.weaponName);
     this._killedAt = params.killedAt;
   }
 
@@ -43,15 +29,15 @@ export class Kill {
   }
 
   get killerName(): string {
-    return this._killerName;
+    return this._killerName.value;
   }
 
   get victimName(): string {
-    return this._victimName;
+    return this._victimName.value;
   }
 
   get weaponName(): string {
-    return this._weaponName;
+    return this._weaponName.value;
   }
 
   get killedAt(): Date {
@@ -59,13 +45,13 @@ export class Kill {
   }
 
   isWorldKill(): boolean {
-    return PlayerName.isWorld(this._killerName);
+    return PlayerName.isWorld(this._killerName.value);
   }
 
   equals(other: Kill): boolean {
     return (
       this._matchId === other._matchId &&
-      this._victimName === other._victimName &&
+      this._victimName.equals(other._victimName) &&
       this._killedAt.getTime() === other._killedAt.getTime()
     );
   }

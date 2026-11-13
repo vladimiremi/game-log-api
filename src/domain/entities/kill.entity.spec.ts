@@ -26,4 +26,16 @@ describe('Kill', () => {
       () => new Kill({ ...baseParams, killerName: '   ' }),
     ).toThrow(DomainError);
   });
+
+  it('throws when victim name is empty', () => {
+    expect(
+      () => new Kill({ ...baseParams, victimName: '' }),
+    ).toThrow(DomainError);
+  });
+
+  it('throws when weapon name is empty', () => {
+    expect(
+      () => new Kill({ ...baseParams, weaponName: '' }),
+    ).toThrow(DomainError);
+  });
 });

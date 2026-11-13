@@ -11,9 +11,13 @@ export class Match {
   private _endedAt: Date | null = null;
   private readonly _kills: Kill[] = [];
 
-  constructor(id: bigint, startedAt: Date) {
+  private constructor(id: bigint, startedAt: Date) {
     this._id = id;
     this._startedAt = startedAt;
+  }
+
+  static start(id: bigint, startedAt: Date): Match {
+    return new Match(id, startedAt);
   }
 
   get id(): bigint {
@@ -82,7 +86,19 @@ export class Match {
 
   static withKills(matchId: bigint, kills: Kill[]): Match {
     const startedAt = kills.length > 0 ? kills[0].killedAt : new Date(0);
-    const match = new Match(matchId, startedAt);
+    return Match.reconstitute(matchId, startedAt, null, kills);
+  }
+
+  static reconstitute(
+    id: bigint,
+    startedAt: Date,
+    endedAt: Date | null,
+    kills: Kill[],
+  ): Match {
+    const match = Match.start(id, startedAt);
+    if (endedAt) {
+      match.end(endedAt);
+    }
     for (const kill of kills) {
       match.addKill(kill);
     }
